@@ -1,2 +1,3 @@
-# alurakut
-Imersão React da Alura - 3ª edição
+# Alurakut
+
+### Imersão React da Alura - 3ª edição
