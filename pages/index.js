@@ -22,12 +22,48 @@ function ProfileSidebar(props) {
   );
 }
 
+function ProfileRelationsBox(props) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className='smallTitle'>
+        {props.title} ({props.items.length})
+      </h2>
+
+      <ul>
+        {
+          props.items.map((item) => {
+            return (
+              <li key={item.id}>
+                <a href={`/users/${item.login}`}>
+                  <img src={item.avatar_url} />
+                  <span>{item.login}</span>
+                </a>
+              </li>
+            )
+          })
+        }
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  );
+}
+
 export default function Home() {
   const [communities, setCommunities] = React.useState([{
     id: 'initialState',
     title: 'Eu odeio acordar cedo',
     image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
   }]);
+  const [followers, setFollowers] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('https://api.github.com/users/Lucas-HMSC/followers')
+    .then((response) => {
+      return response.json();
+    })
+    .then((json) => {
+      setFollowers(json);
+    })
+  }, []);
 
   const githubUser = 'lucas-hmsc';
   const favoritesPeople = [
@@ -138,6 +174,11 @@ export default function Home() {
               }
             </ul>
           </ProfileRelationsBoxWrapper>
+
+          <ProfileRelationsBox 
+            title='Seguidores'
+            items={followers}
+          />
         </div>
       </MainGrid>
     </>
