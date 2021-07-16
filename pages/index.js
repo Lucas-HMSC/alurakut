@@ -1,4 +1,6 @@
 import React from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 
 import { AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault } from '../src/lib/AlurakutCommons';
 
@@ -47,9 +49,19 @@ function ProfileRelationsBox(props) {
   );
 }
 
-export default function Home() {
+export default function Home(props) {
   const [communities, setCommunities] = React.useState([]);
   const [followers, setFollowers] = React.useState([]);
+
+  const githubUser = props.githubUser;
+  const favoritesPeople = [
+    'juunegreiros',
+    'omariosouto', 
+    'peas', 
+    'rafaballerini',
+    'marcobrunodev',
+    'felipefialho'
+  ];
 
   React.useEffect(() => {
     fetch('https://api.github.com/users/Lucas-HMSC/followers')
@@ -87,16 +99,6 @@ export default function Home() {
       setCommunities(response);
     })
   }, []);
-
-  const githubUser = 'lucas-hmsc';
-  const favoritesPeople = [
-    'juunegreiros',
-    'omariosouto', 
-    'peas', 
-    'rafaballerini',
-    'marcobrunodev',
-    'felipefialho'
-  ];
 
   function handleCreateCommunity(event) {
     event.preventDefault();
@@ -219,4 +221,33 @@ export default function Home() {
       </MainGrid>
     </>
   )
+}
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context);
+  const token = cookies.USER_TOKEN;
+
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+      Authorization: token
+    }
+  })
+  .then((response) => response.json());
+
+  if (!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false
+      }
+    }
+  }
+
+  const { githubUser } = jwt.decode(token);
+
+  return {
+    props: {
+      githubUser
+    }
+  }
 }
